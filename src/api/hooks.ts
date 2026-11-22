@@ -5,6 +5,7 @@ import type {
   AnalysisView,
   ApproveRequest,
   CreateProjectRequest,
+  DependencyReport,
   EntryPointView,
   IndexResult,
   JobStatus,
@@ -30,6 +31,7 @@ export const keys = {
   entryPoints: (projectId: number) => ['projects', projectId, 'entry-points'] as const,
   sinks: (projectId: number) => ['projects', projectId, 'sinks'] as const,
   sinkPaths: (projectId: number, maxDepth: number) => ['projects', projectId, 'sink-paths', maxDepth] as const,
+  dependencies: (projectId: number) => ['projects', projectId, 'dependencies'] as const,
   projectAnalyses: (projectId: number) => ['projects', projectId, 'analyses'] as const,
   analysis: (jobId: number) => ['analyses', jobId] as const,
   traces: (jobId: number) => ['analyses', jobId, 'traces'] as const,
@@ -90,6 +92,19 @@ export function useSinkPaths(projectId: number, maxDepth = 12) {
   return useQuery({
     queryKey: keys.sinkPaths(projectId, maxDepth),
     queryFn: () => api.get<SinkPathView[]>(`/api/projects/${projectId}/code-graph/sink-paths?maxDepth=${maxDepth}`),
+  })
+}
+
+/**
+ * 라이브러리와 알려진 취약점. 외부(OSV)에 묻는 요청이라 사람이 버튼을 눌렀을 때만 불러온다.
+ * @param enabled 검사 버튼을 눌렀으면 true
+ */
+export function useDependencies(projectId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: keys.dependencies(projectId),
+    queryFn: () => api.get<DependencyReport>(`/api/projects/${projectId}/dependencies`),
+    enabled,
+    staleTime: 5 * 60_000,
   })
 }
 

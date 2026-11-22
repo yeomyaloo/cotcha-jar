@@ -46,6 +46,14 @@ test('@screenshot 에이전트 기록', async ({ page }) => {
   await page.screenshot({ path: `${DIR}/analysis-traces.png`, fullPage: true })
 })
 
+test('@screenshot 라이브러리 취약점', async ({ page }) => {
+  await page.goto('/projects/1')
+  await page.getByRole('button', { name: '라이브러리 검사' }).click()
+  const card = page.locator('section').filter({ hasText: '② 라이브러리 취약점' })
+  await expect(card.getByText('CVE-2022-1471')).toBeVisible()
+  await card.screenshot({ path: `${DIR}/dependencies.png` })
+})
+
 test('@screenshot 계획 승인', async ({ page }) => {
   await page.goto('/analyses/9')
   const card = page.getByRole('region', { name: '계획 승인' })

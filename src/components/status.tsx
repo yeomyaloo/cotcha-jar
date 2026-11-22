@@ -85,7 +85,11 @@ const CATEGORY_TONES: Record<string, Tone> = {
   PATH: 'orange',
   SSRF: 'orange',
   JNDI: 'orange',
+  XXE: 'orange',
+  XSS: 'orange',
   OPEN_REDIRECT: 'yellow',
+  WEAK_CRYPTO: 'yellow',
+  WEAK_RANDOM: 'yellow',
   IDOR: 'purple',
 }
 

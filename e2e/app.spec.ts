@@ -94,6 +94,38 @@ test.describe('프로젝트 상세', () => {
     expect((await request).postDataJSON()).toMatchObject({ planner: 'paths', maxIntentions: 5 })
   })
 
+  test('라이브러리 검사는 버튼을 눌러야 하고, 취약한 것을 심각한 순으로 보여준다', async ({ page }) => {
+    let calls = 0
+    page.on('request', (r) => {
+      if (new URL(r.url()).pathname === '/api/projects/1/dependencies') calls++
+    })
+    await page.goto('/projects/1')
+    await expect(page.getByRole('button', { name: '라이브러리 검사' })).toBeVisible()
+    expect(calls).toBe(0)
+
+    await page.getByRole('button', { name: '라이브러리 검사' }).click()
+    const list = page.getByRole('list', { name: '취약한 라이브러리' })
+    await expect(list.getByRole('listitem').filter({ hasText: 'snakeyaml' }).first()).toContainText('CVE-2022-1471')
+    await expect(list).toContainText('고친 버전 2.0')
+    await expect(list.getByRole('link', { name: 'CVE-2022-1471' })).toHaveAttribute('href', 'https://osv.dev/vulnerability/GHSA-mjmj-j48q-9wg2')
+    await expect(page.getByText('알려진 취약점이 없는 라이브러리 2개')).toBeVisible()
+    await expect(page.getByText('버전을 알 수 없는 라이브러리 1개')).toBeVisible()
+    expect(calls).toBe(1)
+  })
+
+  test('OSV 에 묻지 못하면 이유를 알려준다', async ({ page }) => {
+    await page.route((url) => url.pathname === '/api/projects/1/dependencies', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ files: ['build.gradle'], dependencies: [], unversioned: [], checked: false, error: 'OSV 에 연결하지 못함: timeout' }),
+      }),
+    )
+    await page.goto('/projects/1')
+    await page.getByRole('button', { name: '라이브러리 검사' }).click()
+    await expect(page.getByText('알려진 취약점을 검사하지 못했어요: OSV 에 연결하지 못함: timeout')).toBeVisible()
+  })
+
   test('승인 단계를 끄고 시작할 수 있다', async ({ page }) => {
     await page.goto('/projects/1')
     await page.getByLabel('실행 전에 계획 승인받기').uncheck()

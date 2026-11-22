@@ -189,3 +189,40 @@ export interface ApproveRequest {
   skipIntentionIds: number[]
   comment: string | null
 }
+
+/** 공개 취약점 DB(OSV)의 알려진 취약점 */
+export interface Vulnerability {
+  id: string
+  /** CVE-... 같은 다른 이름 */
+  aliases: string[]
+  summary: string | null
+  severity: 'critical' | 'high' | 'medium' | 'low' | null
+  /** 이 라이브러리에서 고쳐진 버전 */
+  fixed: string[]
+  cwes: string[]
+  url: string
+}
+
+/** 빌드 파일에 적힌 라이브러리 하나 */
+export interface DependencyView {
+  group: string
+  artifact: string
+  version: string
+  file: string
+  line: number
+  /** dependency / parent / plugin / lockfile / test */
+  scope: string
+  vulnerabilities: Vulnerability[]
+}
+
+/** GET /api/projects/{id}/dependencies */
+export interface DependencyReport {
+  files: string[]
+  /** 취약점이 있는 것, 심각한 것부터 */
+  dependencies: DependencyView[]
+  /** 버전을 알 수 없어 검사하지 못한 라이브러리 ("group:artifact (파일:줄)") */
+  unversioned: string[]
+  /** OSV 에 물어봤는지. false 면 error 에 이유 */
+  checked: boolean
+  error: string | null
+}

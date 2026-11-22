@@ -1,6 +1,7 @@
 import type { Page, Route } from '@playwright/test'
 import type {
   AnalysisView,
+  DependencyReport,
   EntryPointView,
   IndexResult,
   JobSummaryView,
@@ -277,6 +278,31 @@ export const traces: TraceView[] = [
   t(14, 401, 'worker-1', 13, 'ASSISTANT', null, '판정: 취약\n근거: name 이 검증 없이 UserServiceImpl.java:24 에서 SQL 문자열에 이어 붙여지고 :25 에서 실행됩니다.', 19),
 ]
 
+/** 라이브러리 취약점 검사 결과 (OSV 응답을 흉내 냄). 백엔드처럼 심각한 것부터 */
+export const dependencyReport: DependencyReport = {
+  files: ['pom.xml'],
+  dependencies: [
+    {
+      group: 'org.springframework.boot', artifact: 'spring-boot', version: '2.6.1', file: 'pom.xml', line: 5, scope: 'parent',
+      vulnerabilities: [
+        { id: 'CVE-2023-20873', aliases: [], summary: 'Spring Boot Actuator security bypass on Cloud Foundry', severity: 'critical', fixed: ['2.6.15', '2.7.11'], cwes: ['CWE-1188'], url: 'https://osv.dev/vulnerability/CVE-2023-20873' },
+      ],
+    },
+    {
+      group: 'org.yaml', artifact: 'snakeyaml', version: '1.29', file: 'pom.xml', line: 41, scope: 'dependency',
+      vulnerabilities: [
+        { id: 'GHSA-mjmj-j48q-9wg2', aliases: ['CVE-2022-1471'], summary: 'SnakeYaml Constructor Deserialization Remote Code Execution', severity: 'high', fixed: ['2.0'], cwes: ['CWE-502'], url: 'https://osv.dev/vulnerability/GHSA-mjmj-j48q-9wg2' },
+        { id: 'GHSA-98wm-3w3q-mw94', aliases: ['CVE-2022-38751'], summary: 'Uncontrolled Resource Consumption in snakeyaml', severity: 'medium', fixed: ['1.31'], cwes: ['CWE-121'], url: 'https://osv.dev/vulnerability/GHSA-98wm-3w3q-mw94' },
+      ],
+    },
+    { group: 'org.springframework.boot', artifact: 'spring-boot-starter-web', version: '2.6.1', file: 'pom.xml', line: 18, scope: 'dependency', vulnerabilities: [] },
+    { group: 'junit', artifact: 'junit', version: '4.13.2', file: 'pom.xml', line: 52, scope: 'test', vulnerabilities: [] },
+  ],
+  unversioned: ['com.example:internal-lib (pom.xml:46)'],
+  checked: true,
+  error: null,
+}
+
 export const isApi = (url: URL) => url.pathname.startsWith('/api/')
 
 /** 모든 /api 요청을 예시 데이터로 응답한다. 기록한 검토 결과는 다음 조회에 반영한다 */
@@ -300,6 +326,7 @@ export async function mockApi(page: Page) {
       return json(route, { ...project, id: 3, name: body.name || 'new-repo', gitUrl: body.gitUrl ?? null }, 201)
     }
     if (path === '/api/projects/1/index') return json(route, indexResult)
+    if (path === '/api/projects/1/dependencies') return json(route, dependencyReport)
     if (path === '/api/projects/1/sync') return json(route, project)
     if (path === '/api/projects/1/code-graph/entry-points') return json(route, entryPoints)
     if (path === '/api/projects/1/code-graph/sinks') return json(route, sinks)

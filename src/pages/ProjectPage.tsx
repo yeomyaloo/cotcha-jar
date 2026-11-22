@@ -13,6 +13,7 @@ import {
 import type { IndexResult, PlannerMode, SinkPathView } from '../api/types'
 import { Badge, Button, Card, Code, Empty, ErrorBox, Field, inputClass, Loading, Stat, Tabs } from '../components/ui'
 import { CategoryBadge, JobStatusBadge } from '../components/status'
+import DependencyCard from './project/DependencyCard'
 import { formatDateTime, formatNumber, formatTokens, location, shortName } from '../lib/format'
 
 type GraphTab = 'paths' | 'entry-points' | 'sinks'
@@ -89,6 +90,7 @@ export default function ProjectPage() {
         </div>
       </Card>
 
+      <DependencyCard projectId={projectId} />
       <StartAnalysisCard projectId={projectId} />
       <AnalysisList projectId={projectId} />
     </div>
@@ -255,7 +257,7 @@ function StartAnalysisCard({ projectId }: { projectId: number }) {
   }
 
   return (
-    <Card title="② 에이전트 분석 시작">
+    <Card title="③ 에이전트 분석 시작">
       <p className="text-sm text-zinc-500">
         {planner === 'llm'
           ? 'Planner(Opus)가 코드 그래프를 보고 할 일을 정하고, Worker(Sonnet)들이 나눠 조사한 결과를 보고 할 일을 보완해요(최대 3회차). 마지막에 Verifier(Opus)가 발견을 다시 검증해요.'
@@ -316,7 +318,7 @@ function AnalysisList({ projectId }: { projectId: number }) {
   const analyses = useProjectAnalyses(projectId)
 
   return (
-    <Card title={`③ 분석 결과 ${analyses.data ? analyses.data.length : ''}`}>
+    <Card title={`④ 분석 결과 ${analyses.data ? analyses.data.length : ''}`}>
       {analyses.isPending && <Loading />}
       <ErrorBox error={analyses.error} />
       {analyses.data?.length === 0 && <Empty>아직 분석한 적이 없어요.</Empty>}
