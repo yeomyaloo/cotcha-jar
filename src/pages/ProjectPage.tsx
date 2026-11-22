@@ -170,6 +170,7 @@ function CodeGraphTabs({ projectId }: { projectId: number }) {
                   <li key={s.id} className="py-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <CategoryBadge category={s.category} cwe={s.cwe} />
+                      {s.frontend && <Badge tone="blue">프론트엔드</Badge>}
                       <Code>{s.api}</Code>
                     </div>
                     <div className="mt-1 text-xs text-zinc-500">

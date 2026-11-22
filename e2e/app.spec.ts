@@ -50,9 +50,13 @@ test.describe('프로젝트 상세', () => {
     await page.goto('/projects/1')
     await page.getByRole('tab', { name: /^진입점 5/ }).click()
     await expect(page.getByText('/api/users/health')).toBeVisible()
-    await page.getByRole('tab', { name: /위험 지점 7/ }).click()
+    await page.getByRole('tab', { name: /위험 지점 9/ }).click()
     await expect(page.getByText('java.io.ObjectInputStream.readObject')).toBeVisible()
     await expect(page.getByText('CWE-502')).toBeVisible()
+    // 프론트엔드 코드의 위험 지점은 따로 표시한다
+    const xss = page.getByRole('listitem').filter({ hasText: 'React dangerouslySetInnerHTML' })
+    await expect(xss).toContainText('프론트엔드')
+    await expect(xss).toContainText('frontend/src/components/Comment.tsx:5')
   })
 
   test('코드 그래프를 만들면 통계를 보여준다', async ({ page }) => {

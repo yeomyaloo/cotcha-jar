@@ -50,7 +50,7 @@ export default function DependencyCard({ projectId }: { projectId: number }) {
       }
     >
       <p className="text-sm text-zinc-500">
-        빌드 파일(pom.xml, build.gradle, libs.versions.toml, gradle.lockfile)의 라이브러리 버전을 공개 취약점 DB(OSV)에 물어봐요.
+        빌드 파일(pom.xml, build.gradle, libs.versions.toml, gradle.lockfile, package-lock.json, yarn.lock, pnpm-lock.yaml)의 라이브러리 버전을 공개 취약점 DB(OSV)에 물어봐요.
         보내는 건 라이브러리 이름과 버전뿐이에요. 검사할 때마다 기록이 남아서 지난 검사와 비교해 보여줘요. LLM Planner도 분석할 때 이 검사를 해요.
       </p>
       <div className="mt-3 space-y-3">

@@ -24,7 +24,7 @@ claude plugin install code-agent@yeomyaloo-code-agent
 
 ![Project detail](docs/screenshots/project.png)
 
-**Library vulnerabilities**: libraries from the build files with known vulnerabilities (CVE, severity, fixed version) from the public OSV database. Every scan is kept with its commit and compared with the previous one (version changes, new and resolved vulnerabilities); pick an older scan from the history. A new scan runs only when you press the button
+**Library vulnerabilities**: libraries from the build files (Maven, Gradle, npm) with known vulnerabilities (CVE, severity, fixed version) from the public OSV database. Every scan is kept with its commit and compared with the previous one (version changes, new and resolved vulnerabilities); pick an older scan from the history. A new scan runs only when you press the button
 
 ![Library vulnerabilities](docs/screenshots/dependencies.png)
 
@@ -56,7 +56,7 @@ claude plugin install code-agent@yeomyaloo-code-agent
 | Page | What it does | API used |
 |---|---|---|
 | **Projects** `/` | Register a repository by Git URL or server folder path, list registered repositories | `POST /api/projects`, `GET /api/projects` |
-| **Project detail** `/projects/:id` | Pull the latest commit, build the code graph (file, method, entry point and sink stats), browse entry point → sink paths, entry points and sinks, library vulnerabilities (build files + OSV, on demand; scan history and comparison with the previous scan), analyzed commit per analysis, start an analysis (planning mode: LLM Planner / mechanically per path; optionally wait for human approval of each plan), analysis list (status, finished tasks, finding counts, tokens) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
+| **Project detail** `/projects/:id` | Pull the latest commit, build the code graph (file, method, entry point and sink stats), browse entry point → sink paths, entry points and sinks (frontend JS/TS sinks are marked), library vulnerabilities (build files + OSV, on demand; scan history and comparison with the previous scan), analyzed commit per analysis, start an analysis (planning mode: LLM Planner / mechanically per path; optionally wait for human approval of each plan), analysis list (status, finished tasks, finding counts, tokens) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
 | **Analysis** `/analyses/:id` | Plan approval while `WAITING_APPROVAL` (drop tasks, approve or reject) and the approval history, real-time progress (server events, SSE; falls back to 2-second polling), token usage, findings (Verifier verdict, evidence code, attack example), human review, the Planner's per-round plans and per-task conclusions, agent log timeline, HTML and SARIF reports | `GET /analyses/:id`, `/approve`, `/reject`, `/traces`, `/findings/:id/review`, `/verify`, `/report.*` |
 
 The **Agent log** tab shows what the agent did, in order: what Claude thought, which tools it called, and what results it got back. While an analysis is running, it follows new entries automatically.
@@ -192,7 +192,7 @@ claude plugin install code-agent@yeomyaloo-code-agent
 
 ![프로젝트 상세](docs/screenshots/project.png)
 
-**라이브러리 취약점**: 빌드 파일의 라이브러리 중 공개 취약점 DB(OSV)에 알려진 취약점이 있는 것(CVE, 심각도, 고친 버전). 검사마다 커밋과 함께 기록이 남고 지난 검사와 비교한다(버전 변경, 새 취약점, 해결된 취약점). 기록에서 예전 검사를 골라 볼 수 있다. 새 검사는 버튼을 눌렀을 때만 한다
+**라이브러리 취약점**: 빌드 파일(Maven, Gradle, npm)의 라이브러리 중 공개 취약점 DB(OSV)에 알려진 취약점이 있는 것(CVE, 심각도, 고친 버전). 검사마다 커밋과 함께 기록이 남고 지난 검사와 비교한다(버전 변경, 새 취약점, 해결된 취약점). 기록에서 예전 검사를 골라 볼 수 있다. 새 검사는 버튼을 눌렀을 때만 한다
 
 ![라이브러리 취약점](docs/screenshots/dependencies.png)
 
@@ -224,7 +224,7 @@ claude plugin install code-agent@yeomyaloo-code-agent
 | 화면 | 하는 일 | 쓰는 API |
 |---|---|---|
 | **프로젝트** `/` | Git 주소나 서버 폴더 경로로 저장소 등록, 등록된 저장소 목록 | `POST /api/projects`, `GET /api/projects` |
-| **프로젝트 상세** `/projects/:id` | 최신 커밋 받기, 코드 그래프 만들기(파일·메서드·진입점·위험 지점 통계), 진입점 → 위험 지점 경로·진입점·위험 지점 조회, 라이브러리 취약점(빌드 파일 + OSV, 버튼을 누를 때만. 검사 기록과 지난 검사와의 비교), 분석마다 분석한 커밋, 분석 시작(계획 방식: LLM Planner / 경로마다 기계적으로, 계획마다 사람 승인받기 선택), 분석 목록(상태·할 일·발견 개수·토큰) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
+| **프로젝트 상세** `/projects/:id` | 최신 커밋 받기, 코드 그래프 만들기(파일·메서드·진입점·위험 지점 통계), 진입점 → 위험 지점 경로·진입점·위험 지점 조회(프론트엔드 JS/TS 위험 지점 표시), 라이브러리 취약점(빌드 파일 + OSV, 버튼을 누를 때만. 검사 기록과 지난 검사와의 비교), 분석마다 분석한 커밋, 분석 시작(계획 방식: LLM Planner / 경로마다 기계적으로, 계획마다 사람 승인받기 선택), 분석 목록(상태·할 일·발견 개수·토큰) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
 | **분석** `/analyses/:id` | 승인 대기(`WAITING_APPROVAL`) 중이면 계획 승인(할 일 빼기·승인·거절)과 승인 기록, 실시간 진행 상황(서버 이벤트 SSE, 끊기면 2초 폴링), 토큰 사용량, 발견 목록(Verifier 판정·근거 코드·공격 예시), 사람 검토, Planner 회차별 계획과 할 일별 결론, 에이전트 기록 타임라인, HTML·SARIF 보고서 | `GET /analyses/:id`, `/approve`, `/reject`, `/traces`, `/findings/:id/review`, `/verify`, `/report.*` |
 
 **에이전트 기록** 탭에서는 에이전트가 한 일을 순서대로 볼 수 있다. Claude가 무슨 생각을 했고, 어떤 도구를 불렀고, 무슨 결과를 받았는지가 나온다. 분석이 진행 중이면 새 기록을 자동으로 따라간다.

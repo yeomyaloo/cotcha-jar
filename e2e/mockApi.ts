@@ -77,6 +77,9 @@ const sinks: SinkView[] = [
   { id: 205, category: 'PATH', cwe: 'CWE-22', api: 'java.nio.file.Paths.get', method: `${PKG}.service.FileService#read(String)`, snippet: 'Paths.get(BASE_DIR, name)', filePath: `${SERVICE_DIR}/FileService.java`, line: 17 },
   { id: 206, category: 'PATH', cwe: 'CWE-22', api: 'java.io.FileInputStream.<init>', method: `${PKG}.service.FileService#load(String)`, snippet: 'new FileInputStream(BASE_DIR + "/" + name)', filePath: `${SERVICE_DIR}/FileService.java`, line: 21 },
   { id: 207, category: 'DESERIALIZATION', cwe: 'CWE-502', api: 'java.io.ObjectInputStream.readObject', method: `${PKG}.service.FileService#load(String)`, snippet: 'in.readObject()', filePath: `${SERVICE_DIR}/FileService.java`, line: 22 },
+  // 프론트엔드 코드의 위험 지점 (진입점 경로 없음)
+  { id: 208, category: 'XSS', cwe: 'CWE-79', api: 'React dangerouslySetInnerHTML', method: 'Comment', snippet: 'return <div dangerouslySetInnerHTML={{ __html: html }} />', filePath: 'frontend/src/components/Comment.tsx', line: 5, frontend: true },
+  { id: 209, category: 'TOKEN_STORAGE', cwe: 'CWE-922', api: 'localStorage/sessionStorage 토큰 저장', method: 'auth', snippet: "localStorage.setItem('accessToken', token)", filePath: 'frontend/src/auth.ts', line: 4, frontend: true },
 ]
 
 const method = (id: number, qualifiedName: string) => ({ id, kind: 'METHOD', qualifiedName, filePath: null, line: null })
