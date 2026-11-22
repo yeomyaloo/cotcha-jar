@@ -83,6 +83,8 @@ export interface JobView {
   error: string | null
   startedAt: string | null
   finishedAt: string | null
+  /** 분석한 커밋 (모르면 null) */
+  commitSha: string | null
 }
 
 /** 프로젝트별 분석 목록의 한 줄 */
@@ -215,7 +217,7 @@ export interface DependencyView {
   vulnerabilities: Vulnerability[]
 }
 
-/** GET /api/projects/{id}/dependencies */
+/** 라이브러리 검사 결과 (검사 기록의 report) */
 export interface DependencyReport {
   files: string[]
   /** 취약점이 있는 것, 심각한 것부터 */
@@ -225,4 +227,60 @@ export interface DependencyReport {
   /** OSV 에 물어봤는지. false 면 error 에 이유 */
   checked: boolean
   error: string | null
+}
+
+export interface VersionChange {
+  group: string
+  artifact: string
+  from: string
+  to: string
+}
+
+export interface VulnerabilityChange {
+  group: string
+  artifact: string
+  version: string
+  id: string
+  displayId: string
+  severity: Vulnerability['severity']
+  summary: string | null
+  fixed: string[]
+}
+
+/** 지난 검사와의 비교 */
+export interface DependencyDiff {
+  previousScanId: number
+  previousCommitSha: string | null
+  previousScannedAt: string
+  changed: VersionChange[]
+  /** group:artifact:version */
+  added: string[]
+  removed: string[]
+  newVulnerabilities: VulnerabilityChange[]
+  resolvedVulnerabilities: VulnerabilityChange[]
+  /** 두 검사 모두 OSV 에 물어봤을 때만 취약점을 비교한다 */
+  vulnerabilitiesCompared: boolean
+}
+
+/** POST /api/projects/{id}/dependency-scans, GET .../dependency-scans/{scanId} */
+export interface DependencyScanView {
+  id: number
+  projectId: number
+  commitSha: string | null
+  scannedAt: string
+  report: DependencyReport
+  /** 첫 검사면 null */
+  diff: DependencyDiff | null
+}
+
+/** GET /api/projects/{id}/dependency-scans 의 한 줄 */
+export interface DependencyScanSummary {
+  id: number
+  commitSha: string | null
+  scannedAt: string
+  checked: boolean
+  error: string | null
+  dependencies: number
+  vulnerable: number
+  vulnerabilities: number
 }

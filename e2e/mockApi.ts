@@ -2,6 +2,8 @@ import type { Page, Route } from '@playwright/test'
 import type {
   AnalysisView,
   DependencyReport,
+  DependencyScanSummary,
+  DependencyScanView,
   EntryPointView,
   IndexResult,
   JobSummaryView,
@@ -215,7 +217,7 @@ const findings: NodeView[] = [
 export const analysis: AnalysisView = {
   job: {
     id: 7, projectId: 1, status: 'DONE', budgetTokens: 2_000_000, usedTokens: 212_480, inputTokens: 190_310, outputTokens: 22_170,
-    error: null, startedAt: '2026-10-09T01:14:02Z', finishedAt: '2026-10-09T01:17:48Z',
+    error: null, startedAt: '2026-10-09T01:14:02Z', finishedAt: '2026-10-09T01:17:48Z', commitSha: '3f9c2a7be41d08c5a6e2f7d9b1c4e8a0f6d3b2c1',
   },
   nodes: [goal, ...intentions, ...facts, ...findings],
 }
@@ -303,11 +305,43 @@ export const dependencyReport: DependencyReport = {
   error: null,
 }
 
+/** 라이브러리 검사 기록. #12 가 최근, #11 이 그 앞(첫 검사) */
+export const dependencyScans: DependencyScanSummary[] = [
+  { id: 12, commitSha: '3f9c2a7be41d08c5a6e2f7d9b1c4e8a0f6d3b2c1', scannedAt: '2026-10-09T01:10:00Z', checked: true, error: null, dependencies: 4, vulnerable: 2, vulnerabilities: 3 },
+  { id: 11, commitSha: '8d1e4b0c7a2f93e6d5c1b8a4f0e7d2c9b6a3f5e1', scannedAt: '2026-09-28T09:30:00Z', checked: true, error: null, dependencies: 4, vulnerable: 2, vulnerabilities: 2 },
+]
+
+export const latestScan: DependencyScanView = {
+  id: 12, projectId: 1, commitSha: dependencyScans[0].commitSha, scannedAt: dependencyScans[0].scannedAt,
+  report: dependencyReport,
+  diff: {
+    previousScanId: 11, previousCommitSha: dependencyScans[1].commitSha, previousScannedAt: dependencyScans[1].scannedAt,
+    changed: [{ group: 'org.yaml', artifact: 'snakeyaml', from: '1.26', to: '1.29' }],
+    added: [],
+    removed: ['commons-collections:commons-collections:3.2.1'],
+    newVulnerabilities: [
+      { group: 'org.yaml', artifact: 'snakeyaml', version: '1.29', id: 'GHSA-98wm-3w3q-mw94', displayId: 'CVE-2022-38751', severity: 'medium', summary: 'Uncontrolled Resource Consumption in snakeyaml', fixed: ['1.31'] },
+    ],
+    resolvedVulnerabilities: [
+      { group: 'commons-collections', artifact: 'commons-collections', version: '3.2.1', id: 'GHSA-fjq5-5j5f-mvxh', displayId: 'CVE-2015-7501', severity: 'critical', summary: 'Deserialization of Untrusted Data in Apache commons collections', fixed: ['3.2.2'] },
+    ],
+    vulnerabilitiesCompared: true,
+  },
+}
+
+export const firstScan: DependencyScanView = {
+  id: 11, projectId: 1, commitSha: dependencyScans[1].commitSha, scannedAt: dependencyScans[1].scannedAt,
+  report: { ...dependencyReport, dependencies: dependencyReport.dependencies.map((d) => (d.artifact === 'snakeyaml' ? { ...d, version: '1.26', vulnerabilities: d.vulnerabilities.slice(0, 1) } : d)) },
+  diff: null,
+}
+
 export const isApi = (url: URL) => url.pathname.startsWith('/api/')
 
 /** 모든 /api 요청을 예시 데이터로 응답한다. 기록한 검토 결과는 다음 조회에 반영한다 */
 export async function mockApi(page: Page) {
   const reviews = new Map<number, unknown>()
+  /** 라이브러리 검사 기록. 다시 검사하면 앞에 붙는다 */
+  let scans = dependencyScans
   /** 작업 #9 에 내린 승인·거절. 다음 조회에 반영한다 */
   let decision: Decision = {}
   const json = (route: Route, body: unknown, status = 200) =>
@@ -326,7 +360,18 @@ export async function mockApi(page: Page) {
       return json(route, { ...project, id: 3, name: body.name || 'new-repo', gitUrl: body.gitUrl ?? null }, 201)
     }
     if (path === '/api/projects/1/index') return json(route, indexResult)
-    if (path === '/api/projects/1/dependencies') return json(route, dependencyReport)
+    if (path === '/api/projects/1/dependency-scans' && method === 'GET') return json(route, scans)
+    if (path === '/api/projects/1/dependency-scans' && method === 'POST') {
+      // 다시 검사: 최근 검사와 달라진 것이 없다
+      const scan: DependencyScanView = {
+        ...latestScan, id: 13, scannedAt: '2026-10-10T08:00:00Z',
+        diff: { ...latestScan.diff!, previousScanId: 12, previousCommitSha: latestScan.commitSha, previousScannedAt: latestScan.scannedAt, changed: [], removed: [], newVulnerabilities: [], resolvedVulnerabilities: [] },
+      }
+      scans = [{ ...dependencyScans[0], id: 13, scannedAt: scan.scannedAt }, ...scans]
+      return json(route, scan, 201)
+    }
+    if (path === '/api/projects/1/dependency-scans/12') return json(route, latestScan)
+    if (path === '/api/projects/1/dependency-scans/11') return json(route, firstScan)
     if (path === '/api/projects/1/sync') return json(route, project)
     if (path === '/api/projects/1/code-graph/entry-points') return json(route, entryPoints)
     if (path === '/api/projects/1/code-graph/sinks') return json(route, sinks)

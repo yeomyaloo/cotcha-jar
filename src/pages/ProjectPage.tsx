@@ -344,7 +344,10 @@ function AnalysisList({ projectId }: { projectId: number }) {
                     </Link>
                   </td>
                   <td className="px-4 py-2"><JobStatusBadge status={job.status} /></td>
-                  <td className="px-4 py-2 text-zinc-500">{formatDateTime(job.startedAt)}</td>
+                  <td className="px-4 py-2 text-zinc-500">
+                    {formatDateTime(job.startedAt)}
+                    {job.commitSha && <span className="ml-1 font-mono text-xs" title={job.commitSha}>@{job.commitSha.slice(0, 7)}</span>}
+                  </td>
                   <td className="px-4 py-2 text-right tabular-nums">{intentionsFinished} / {intentions}</td>
                   <td className="px-4 py-2">
                     <div className="flex flex-wrap gap-1">

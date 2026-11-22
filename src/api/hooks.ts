@@ -5,7 +5,8 @@ import type {
   AnalysisView,
   ApproveRequest,
   CreateProjectRequest,
-  DependencyReport,
+  DependencyScanSummary,
+  DependencyScanView,
   EntryPointView,
   IndexResult,
   JobStatus,
@@ -31,7 +32,8 @@ export const keys = {
   entryPoints: (projectId: number) => ['projects', projectId, 'entry-points'] as const,
   sinks: (projectId: number) => ['projects', projectId, 'sinks'] as const,
   sinkPaths: (projectId: number, maxDepth: number) => ['projects', projectId, 'sink-paths', maxDepth] as const,
-  dependencies: (projectId: number) => ['projects', projectId, 'dependencies'] as const,
+  dependencyScans: (projectId: number) => ['projects', projectId, 'dependency-scans'] as const,
+  dependencyScan: (projectId: number, scanId: number) => ['projects', projectId, 'dependency-scans', scanId] as const,
   projectAnalyses: (projectId: number) => ['projects', projectId, 'analyses'] as const,
   analysis: (jobId: number) => ['analyses', jobId] as const,
   traces: (jobId: number) => ['analyses', jobId, 'traces'] as const,
@@ -95,16 +97,33 @@ export function useSinkPaths(projectId: number, maxDepth = 12) {
   })
 }
 
-/**
- * 라이브러리와 알려진 취약점. 외부(OSV)에 묻는 요청이라 사람이 버튼을 눌렀을 때만 불러온다.
- * @param enabled 검사 버튼을 눌렀으면 true
- */
-export function useDependencies(projectId: number, enabled: boolean) {
+/** 라이브러리 검사 기록 (DB 에 저장된 것. OSV 에 묻지 않는다) */
+export function useDependencyScans(projectId: number) {
   return useQuery({
-    queryKey: keys.dependencies(projectId),
-    queryFn: () => api.get<DependencyReport>(`/api/projects/${projectId}/dependencies`),
-    enabled,
-    staleTime: 5 * 60_000,
+    queryKey: keys.dependencyScans(projectId),
+    queryFn: () => api.get<DependencyScanSummary[]>(`/api/projects/${projectId}/dependency-scans`),
+  })
+}
+
+/** 저장한 검사 하나와 그 앞 검사와의 비교 */
+export function useDependencyScan(projectId: number, scanId: number | null) {
+  return useQuery({
+    queryKey: keys.dependencyScan(projectId, scanId ?? 0),
+    queryFn: () => api.get<DependencyScanView>(`/api/projects/${projectId}/dependency-scans/${scanId}`),
+    enabled: scanId != null,
+    staleTime: Infinity,
+  })
+}
+
+/** 지금 검사한다. 백엔드가 라이브러리 좌표·버전을 OSV 에 묻고 기록으로 남긴다 */
+export function useScanDependencies(projectId: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post<DependencyScanView>(`/api/projects/${projectId}/dependency-scans`),
+    onSuccess: (scan) => {
+      queryClient.setQueryData(keys.dependencyScan(projectId, scan.id), scan)
+      queryClient.invalidateQueries({ queryKey: keys.dependencyScans(projectId), exact: true })
+    },
   })
 }
 

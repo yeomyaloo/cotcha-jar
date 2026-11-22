@@ -128,6 +128,11 @@ function Header({ data, live }: { data: AnalysisView; live: boolean }) {
       </div>
       <p className="mt-1 text-sm text-zinc-500">
         시작 {formatDateTime(job.startedAt)} · 걸린 시간 {formatDuration(job.startedAt, job.finishedAt)}
+        {job.commitSha && (
+          <>
+            {' · '}커밋 <code className="font-mono text-xs" title={job.commitSha}>{job.commitSha.slice(0, 12)}</code>
+          </>
+        )}
       </p>
       {job.error && (
         <div className="mt-2">

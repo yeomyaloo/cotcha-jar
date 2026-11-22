@@ -73,6 +73,7 @@ test.describe('프로젝트 상세', () => {
     await expect(rows.nth(3)).toContainText('확정 2')
     await expect(rows.nth(3)).toContainText('기각 1')
     await expect(rows.nth(4)).toContainText('중단')
+    await expect(rows.nth(3)).toContainText('@3f9c2a7')
     await rows.nth(3).getByRole('link', { name: '#7' }).click()
     await expect(page).toHaveURL(/\/analyses\/7$/)
   })
@@ -94,34 +95,56 @@ test.describe('프로젝트 상세', () => {
     expect((await request).postDataJSON()).toMatchObject({ planner: 'paths', maxIntentions: 5 })
   })
 
-  test('라이브러리 검사는 버튼을 눌러야 하고, 취약한 것을 심각한 순으로 보여준다', async ({ page }) => {
-    let calls = 0
+  test('최근 라이브러리 검사와 지난 검사와의 비교를 OSV 에 묻지 않고 보여준다', async ({ page }) => {
+    let posts = 0
     page.on('request', (r) => {
-      if (new URL(r.url()).pathname === '/api/projects/1/dependencies') calls++
+      if (new URL(r.url()).pathname === '/api/projects/1/dependency-scans' && r.method() === 'POST') posts++
     })
     await page.goto('/projects/1')
-    await expect(page.getByRole('button', { name: '라이브러리 검사' })).toBeVisible()
-    expect(calls).toBe(0)
-
-    await page.getByRole('button', { name: '라이브러리 검사' }).click()
     const list = page.getByRole('list', { name: '취약한 라이브러리' })
     await expect(list.getByRole('listitem').filter({ hasText: 'snakeyaml' }).first()).toContainText('CVE-2022-1471')
     await expect(list).toContainText('고친 버전 2.0')
     await expect(list.getByRole('link', { name: 'CVE-2022-1471' })).toHaveAttribute('href', 'https://osv.dev/vulnerability/GHSA-mjmj-j48q-9wg2')
-    await expect(page.getByText('알려진 취약점이 없는 라이브러리 2개')).toBeVisible()
-    await expect(page.getByText('버전을 알 수 없는 라이브러리 1개')).toBeVisible()
-    expect(calls).toBe(1)
+    await expect(page.getByText('커밋 3f9c2a7be41d')).toBeVisible()
+
+    const diff = page.getByRole('region', { name: '지난 검사와 비교' })
+    await expect(diff).toContainText('@8d1e4b0')
+    await expect(diff.getByRole('listitem').filter({ hasText: '새 취약점' })).toContainText('CVE-2022-38751')
+    await expect(diff.getByRole('listitem').filter({ hasText: '해결됨' })).toContainText('CVE-2015-7501')
+    await expect(diff.getByRole('listitem').filter({ hasText: '버전 변경' })).toContainText('org.yaml:snakeyaml 1.26 → 1.29')
+    await expect(diff.getByRole('listitem').filter({ hasText: '제거' })).toContainText('commons-collections:commons-collections:3.2.1')
+    expect(posts).toBe(0)
+
+    // 지난 검사를 고르면 그 검사를 보여준다 (첫 검사라 비교할 기록이 없음)
+    await page.getByLabel('검사 기록').selectOption('11')
+    await expect(page.getByText('첫 검사라 비교할 기록이 없어요.')).toBeVisible()
+    await expect(page.getByText('커밋 8d1e4b0c7a2f')).toBeVisible()
   })
 
-  test('OSV 에 묻지 못하면 이유를 알려준다', async ({ page }) => {
-    await page.route((url) => url.pathname === '/api/projects/1/dependencies', (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ files: ['build.gradle'], dependencies: [], unversioned: [], checked: false, error: 'OSV 에 연결하지 못함: timeout' }),
-      }),
+  test('다시 검사하면 기록이 늘고 달라진 점을 보여준다', async ({ page }) => {
+    await page.goto('/projects/1')
+    const request = page.waitForRequest((r) => r.url().endsWith('/api/projects/1/dependency-scans') && r.method() === 'POST')
+    await page.getByRole('button', { name: '지금 다시 검사' }).click()
+    await request
+    await expect(page.getByRole('region', { name: '지난 검사와 비교' })).toContainText('달라진 것이 없어요.')
+    await expect(page.getByLabel('검사 기록').locator('option')).toHaveCount(3)
+  })
+
+  test('검사 기록이 없으면 버튼을 눌러 검사하고, OSV 에 묻지 못하면 이유를 알려준다', async ({ page }) => {
+    await page.route((url) => url.pathname === '/api/projects/1/dependency-scans', (route) =>
+      route.request().method() === 'GET'
+        ? route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+        : route.fulfill({
+            status: 201,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              id: 1, projectId: 1, commitSha: null, scannedAt: '2026-10-10T08:00:00Z', diff: null,
+              report: { files: ['build.gradle'], dependencies: [], unversioned: [], checked: false, error: 'OSV 에 연결하지 못함: timeout' },
+            }),
+          }),
     )
     await page.goto('/projects/1')
+    await expect(page.getByText('아직 검사한 적이 없어요.')).toBeVisible()
     await page.getByRole('button', { name: '라이브러리 검사' }).click()
     await expect(page.getByText('알려진 취약점을 검사하지 못했어요: OSV 에 연결하지 못함: timeout')).toBeVisible()
   })
@@ -276,6 +299,11 @@ test.describe('분석 화면', () => {
     expect((await request).postDataJSON()).toEqual({ comment: null })
     await expect(page.getByText('사람이 계획을 거절함')).toBeVisible()
     await expect(page.getByRole('region', { name: '계획 승인' })).toHaveCount(0)
+  })
+
+  test('분석한 커밋을 보여준다', async ({ page }) => {
+    await page.goto('/analyses/7')
+    await expect(page.getByText('3f9c2a7be41d')).toBeVisible()
   })
 
   test('보고서 링크', async ({ page }) => {
