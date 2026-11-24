@@ -9,9 +9,12 @@ test.describe('프로젝트 목록', () => {
   test('등록된 저장소를 최신순으로 보여준다', async ({ page }) => {
     await page.goto('/')
     const items = page.getByRole('listitem')
-    await expect(items).toHaveCount(2)
-    await expect(items.first()).toContainText('spring-petclinic')
-    await expect(items.nth(1)).toContainText('vulnerable-app')
+    await expect(items).toHaveCount(3)
+    await expect(items.first()).toContainText('netinv')
+    await expect(items.first()).toContainText('Python')
+    await expect(items.nth(1)).toContainText('spring-petclinic')
+    await expect(items.nth(2)).toContainText('vulnerable-app')
+    await expect(items.nth(2)).toContainText('Java')
   })
 
   test('Git 주소로 등록하면 프로젝트 화면으로 이동한다', async ({ page }) => {
@@ -59,11 +62,27 @@ test.describe('프로젝트 상세', () => {
     await expect(xss).toContainText('frontend/src/components/Comment.tsx:5')
   })
 
+  test('파이썬 프로젝트는 언어 배지, Depends, 파이썬 위험 지점을 보여준다', async ({ page }) => {
+    await page.goto('/projects/4')
+    await expect(page.getByRole('heading', { name: 'netinv' })).toBeVisible()
+    await page.getByRole('tab', { name: /^진입점 2/ }).click()
+    const nmap = page.getByRole('listitem').filter({ hasText: '/api/scan/nmap' })
+    await expect(nmap).toContainText('scan.run_nmap')
+    await expect(nmap).toContainText('Depends: deps.get_current_user')
+    await expect(page.getByRole('listitem').filter({ hasText: '/api/scan/fetch' })).toContainText('Depends 없음')
+    await page.getByRole('tab', { name: /위험 지점 3/ }).click()
+    const lib = page.getByRole('listitem').filter({ hasText: 'nmap.PortScanner.scan' })
+    await expect(lib).toContainText('CWE-88')
+    await expect(lib).toContainText('Python')
+    await expect(lib).toContainText('scanner.scan_with_lib · app/services/scanner.py:14')
+  })
+
   test('코드 그래프를 만들면 통계를 보여준다', async ({ page }) => {
     await page.goto('/projects/1')
     await page.getByRole('button', { name: '코드 그래프 만들기' }).click()
     await expect(page.getByText('메서드', { exact: true })).toBeVisible()
     await expect(page.getByText('0.8초')).toBeVisible()
+    await expect(page.getByText('찾은 언어')).toContainText('JS/TS')
   })
 
   test('분석 목록을 백엔드에서 받아 보여준다', async ({ page }) => {

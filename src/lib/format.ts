@@ -32,6 +32,8 @@ export function formatDuration(startIso: string | null, endIso: string | null) {
 /** com.example.vuln.service.UserServiceImpl#search(String) → UserServiceImpl#search(String) */
 export function shortName(qualifiedName: string) {
   const hash = qualifiedName.indexOf('#')
+  // '#' 이 없는 Python 이름은 마지막 두 부분 (app.routers.scan.run_nmap → scan.run_nmap)
+  if (hash < 0) return qualifiedName.split('.').slice(-2).join('.')
   const owner = hash < 0 ? qualifiedName : qualifiedName.slice(0, hash)
   const simple = owner.slice(owner.lastIndexOf('.') + 1)
   return hash < 0 ? simple : simple + qualifiedName.slice(hash)

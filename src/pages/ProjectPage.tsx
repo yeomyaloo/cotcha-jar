@@ -12,7 +12,7 @@ import {
 } from '../api/hooks'
 import type { IndexResult, PlannerMode, SinkPathView } from '../api/types'
 import { Badge, Button, Card, Code, Empty, ErrorBox, Field, inputClass, Loading, Stat, Tabs } from '../components/ui'
-import { CategoryBadge, JobStatusBadge } from '../components/status'
+import { CategoryBadge, JobStatusBadge, LanguageBadge, LanguageBadges } from '../components/status'
 import DependencyCard from './project/DependencyCard'
 import { formatDateTime, formatNumber, formatTokens, location, shortName } from '../lib/format'
 
@@ -35,7 +35,7 @@ export default function ProjectPage() {
         <Link to="/" className="text-sm text-zinc-500 hover:underline">← 프로젝트</Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold">{p.name}</h1>
-          <Badge>{p.language}</Badge>
+          <LanguageBadges language={p.language} />
           <span className="text-sm text-zinc-500">#{p.id}</span>
         </div>
         <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm text-zinc-600 sm:grid-cols-[auto_1fr] dark:text-zinc-400">
@@ -108,6 +108,11 @@ function IndexSummary({ result }: { result: IndexResult }) {
         <Stat label="위험 지점" value={formatNumber(result.sinks)} />
         <Stat label="걸린 시간" value={`${(result.elapsedMs / 1000).toFixed(1)}초`} />
       </div>
+      {result.languages && result.languages.length > 0 && (
+        <p className="flex items-center gap-1 text-xs text-zinc-500">
+          찾은 언어 {result.languages.map((l) => <LanguageBadge key={l} language={l} />)}
+        </p>
+      )}
       <p className="text-xs text-zinc-500">
         호출 {formatNumber(result.callEdges)}개 · 상속 연결 {formatNumber(result.overrideEdges)}개 · 타입을 알 수 없는 호출{' '}
         {formatNumber(result.unresolvedCalls)}개
@@ -156,6 +161,11 @@ function CodeGraphTabs({ projectId }: { projectId: number }) {
                     <Badge tone="blue">{e.httpMethod}</Badge>
                     <Code className="font-medium">{e.path}</Code>
                     <span className="text-xs text-zinc-500">{shortName(e.handler)}</span>
+                    {e.dependencies && (e.dependencies.length > 0 ? (
+                      <span className="text-xs text-zinc-500">Depends: {e.dependencies.map(shortName).join(', ')}</span>
+                    ) : (
+                      <Badge tone="yellow">Depends 없음</Badge>
+                    ))}
                   </li>
                 ))}
               </ul>
@@ -171,6 +181,7 @@ function CodeGraphTabs({ projectId }: { projectId: number }) {
                     <div className="flex flex-wrap items-center gap-2">
                       <CategoryBadge category={s.category} cwe={s.cwe} />
                       {s.frontend && <Badge tone="blue">프론트엔드</Badge>}
+                      {s.language === 'python' && <LanguageBadge language="python" />}
                       <Code>{s.api}</Code>
                     </div>
                     <div className="mt-1 text-xs text-zinc-500">

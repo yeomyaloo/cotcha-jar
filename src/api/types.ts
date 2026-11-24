@@ -33,6 +33,8 @@ export interface IndexResult {
   retainedNodes: number
   parseErrors: string[]
   elapsedMs: number
+  /** 저장소에서 찾은 언어 (java, python, javascript) */
+  languages?: string[]
 }
 
 export interface CodeNodeView {
@@ -50,6 +52,8 @@ export interface EntryPointView {
   handler: string
   filePath: string | null
   line: number | null
+  /** FastAPI 진입점의 Depends(...) 의존 함수. Java 진입점은 null (정보 없음) */
+  dependencies?: string[] | null
 }
 
 export interface SinkView {
@@ -63,6 +67,8 @@ export interface SinkView {
   line: number | null
   /** 프론트엔드(JS/TS/Vue/HTML) 코드의 위험 지점. 진입점에서 이어지는 경로가 없다 */
   frontend?: boolean
+  /** 코드 언어 (java, python, javascript) */
+  language?: string | null
 }
 
 export interface SinkPathView {
