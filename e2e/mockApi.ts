@@ -14,7 +14,7 @@ import type {
   TraceView,
 } from '../src/api/types'
 
-// be-code-agent 테스트 픽스처(vulnerable-app)를 분석했다고 가정한 예시 데이터.
+// cotcha-net 테스트 픽스처(vulnerable-app)를 분석했다고 가정한 예시 데이터.
 // 코드 위치와 내용은 실제 픽스처 소스와 맞췄다.
 
 const PKG = 'com.example.vuln'

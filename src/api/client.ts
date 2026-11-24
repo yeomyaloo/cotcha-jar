@@ -17,7 +17,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
-    throw new ApiError(0, '백엔드에 연결할 수 없음. be-code-agent가 실행 중인지 확인할 것')
+    throw new ApiError(0, '백엔드에 연결할 수 없음. cotcha-net가 실행 중인지 확인할 것')
   }
 
   if (!response.ok) {
@@ -29,7 +29,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       // 본문이 JSON이 아니면 상태 코드만 보여준다
     }
     if (response.status === 502 || response.status === 504) {
-      message = '백엔드에 연결할 수 없음. be-code-agent가 실행 중인지 확인할 것'
+      message = '백엔드에 연결할 수 없음. cotcha-net가 실행 중인지 확인할 것'
     }
     throw new ApiError(response.status, message)
   }
