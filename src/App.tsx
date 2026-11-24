@@ -10,10 +10,12 @@ export default function App() {
       <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <span className="grid size-7 place-items-center rounded-lg bg-orange-700 font-mono text-xs text-white">&lt;/&gt;</span>
-            code-agent
+            <img src="/favicon.svg" alt="" className="size-7 rounded-lg" />
+            <span>
+              cotcha<span className="text-orange-500">.</span>
+            </span>
           </Link>
-          <span className="hidden text-sm text-zinc-500 sm:inline">AI 코드 보안 분석 에이전트</span>
+          <span className="hidden text-sm text-zinc-500 sm:inline">잡았다, 보안 버그! AI 코드 보안 분석</span>
         </div>
       </header>
 

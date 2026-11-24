@@ -1,5 +1,5 @@
-# fe-code-agent 웹 화면 이미지. 정적 파일을 nginx 로 서빙하고 /api 는 백엔드로 넘긴다.
-# be-code-agent 의 docker-compose.yml 이 이 저장소를 바로 받아 빌드한다.
+# cotcha-jar 웹 화면 이미지. 정적 파일을 nginx 로 서빙하고 /api 는 백엔드로 넘긴다.
+# cotcha-net 의 docker-compose.yml 이 이 저장소를 바로 받아 빌드한다.
 
 # ---- 빌드 ----
 FROM node:20-alpine AS build

@@ -1,6 +1,23 @@
-# fe-code-agent
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/cotcha-logo-dark.svg">
+    <img src="docs/images/cotcha-logo.svg" alt="Cotcha" width="260">
+  </picture>
+</p>
 
-**Web UI for [be-code-agent](https://github.com/yeomyaloo/be-code-agent), an AI code security audit agent**
+# cotcha-jar
+
+> **Cotcha** = *"Caught ya!"* Cotcha follows untrusted input from where it enters your code to where it can do damage, catches the security bugs on the way, and keeps them in a jar.
+> *Every bug ends up in the jar.*
+
+| Repository | The name means | Role |
+|---|---|---|
+| [cotcha-trail](https://github.com/yeomyaloo/cotcha-trail) | the trail a bug leaves behind | Shared engine: parses code into a graph of entry points, sinks and the calls between them |
+| [cotcha-net](https://github.com/yeomyaloo/cotcha-net) | the bug-catching net | Server: Planner, Worker and Verifier agents sweep the code and double-check every catch (REST API, DB) |
+| [cotcha-pocket](https://github.com/yeomyaloo/cotcha-pocket) | the bug box in your pocket | Claude Code plugin / MCP server: run the audit right from chat |
+| [cotcha-jar (this repo)](https://github.com/yeomyaloo/cotcha-jar) | the jar where caught bugs go | Web UI: paths, findings and approvals at a glance |
+
+**Web UI for [cotcha-net](https://github.com/yeomyaloo/cotcha-net), an AI code security audit agent**
 
 [English](#english) · [한국어](#한국어)
 
@@ -8,17 +25,17 @@
 
 The agent itself runs in the backend. This frontend is where a person **gives the agent work (goals), watches it (observation), and judges the results (review)**.
 
-- **Backend**: [be-code-agent](https://github.com/yeomyaloo/be-code-agent). This UI only calls its API.
-- **Chat version**: you can also run the same audit from chat by installing [mcp-code-agent](https://github.com/yeomyaloo/mcp-code-agent) as a Claude Code plugin. It is not a fallback for people without an API key but a different way of working: it runs on whatever Claude Code is logged in with (a Claude subscription or an API key), and needs no web UI or database.
+- **Backend**: [cotcha-net](https://github.com/yeomyaloo/cotcha-net). This UI only calls its API.
+- **Chat version**: you can also run the same audit from chat by installing [cotcha-pocket](https://github.com/yeomyaloo/cotcha-pocket) as a Claude Code plugin. It is not a fallback for people without an API key but a different way of working: it runs on whatever Claude Code is logged in with (a Claude subscription or an API key), and needs no web UI or database.
 
 ```bash
-claude plugin marketplace add yeomyaloo/mcp-code-agent
-claude plugin install code-agent@yeomyaloo-code-agent
+claude plugin marketplace add yeomyaloo/cotcha-pocket
+claude plugin install cotcha@cotcha
 ```
 
 ## Screenshots
 
-> Taken with the sample data used for UI tests (`e2e/mockApi.ts`, which assumes an analysis of be-code-agent's test fixture `vulnerable-app`). Regenerate them with `npm run screenshots`. The UI text in the screenshots is Korean.
+> Taken with the sample data used for UI tests (`e2e/mockApi.ts`, which assumes an analysis of cotcha-net's test fixture `vulnerable-app`). Regenerate them with `npm run screenshots`. The UI text in the screenshots is Korean.
 
 **Project detail**: code graph stats, entry point → sink paths (including calls through interfaces), starting an analysis, the analysis list
 
@@ -65,14 +82,14 @@ The **Agent log** tab shows what the agent did, in order: what Claude thought, w
 
 ### With Docker (backend + database included)
 
-The easiest way to try the web UI is the backend's one-click setup: `docker compose up` in [be-code-agent](https://github.com/yeomyaloo/be-code-agent#quick-start-with-docker-recommended) builds this repository from GitHub (this `Dockerfile`) and starts it with PostgreSQL and the backend at http://localhost:3000. In the container, nginx serves the built files and forwards `/api` to `BACKEND_URL` (default `http://backend:8080`, see `nginx.conf.template`).
+The easiest way to try the web UI is the backend's one-click setup: `docker compose up` in [cotcha-net](https://github.com/yeomyaloo/cotcha-net#quick-start-with-docker-recommended) builds this repository from GitHub (this `Dockerfile`) and starts it with PostgreSQL and the backend at http://localhost:3000. In the container, nginx serves the built files and forwards `/api` to `BACKEND_URL` (default `http://backend:8080`, see `nginx.conf.template`).
 
 The steps below are for developing the UI itself.
 
 ### Requirements
 
 - Node.js 20 or later
-- A running [be-code-agent](https://github.com/yeomyaloo/be-code-agent) backend (default `http://localhost:8080`)
+- A running [cotcha-net](https://github.com/yeomyaloo/cotcha-net) backend (default `http://localhost:8080`)
 
 ### Dev server
 
@@ -170,23 +187,33 @@ Dockerfile, nginx.conf.template  container image: nginx serves the build, proxie
 
 <a id="한국어"></a>
 
-# fe-code-agent (한국어)
+# cotcha-jar (한국어)
 
-**[be-code-agent](https://github.com/yeomyaloo/be-code-agent)(AI 코드 보안 분석 에이전트)의 웹 화면**
+> **Cotcha(코챠)** = *"Caught ya!"*(잡았다!)를 귀엽게 줄인 말. 외부 입력이 코드에 들어온 곳부터 위험한 곳까지 따라가며 보안 버그를 잡아 유리병에 담는다.
+> *Every bug ends up in the jar.* (잡은 버그는 전부 병 속으로)
+
+| 레포 | 이름 뜻 | 역할 |
+|---|---|---|
+| [cotcha-trail](https://github.com/yeomyaloo/cotcha-trail) | 벌레가 지나간 발자국 | 공용 엔진: 코드를 파싱해 진입점 → 위험 지점 경로(호출 그래프)를 그린다 |
+| [cotcha-net](https://github.com/yeomyaloo/cotcha-net) | 벌레 잡는 잠자리채 | 서버: Planner·Worker·Verifier 에이전트 팀이 코드를 훑고, 잡은 것을 다시 확인한다 (REST API, DB) |
+| [cotcha-pocket](https://github.com/yeomyaloo/cotcha-pocket) | 주머니 속 채집통 | Claude Code 플러그인 / MCP 서버: 채팅에서 바로 분석한다 |
+| [cotcha-jar (이 레포)](https://github.com/yeomyaloo/cotcha-jar) | 잡은 벌레를 모아 두는 유리병 | 웹 화면: 경로·발견·승인을 한눈에 본다 |
+
+**[cotcha-net](https://github.com/yeomyaloo/cotcha-net)(AI 코드 보안 분석 에이전트)의 웹 화면**
 
 에이전트 자체는 백엔드에서 돈다. 이 프론트는 사람이 에이전트에게 **일을 시키고(목표), 지켜보고(관찰), 결과를 판단하는(검토)** 창구다.
 
-- **백엔드**: [be-code-agent](https://github.com/yeomyaloo/be-code-agent). 이 화면은 백엔드 API만 부른다.
-- **채팅 버전**: 같은 분석을 채팅에서 하려면 [mcp-code-agent](https://github.com/yeomyaloo/mcp-code-agent)를 Claude Code 플러그인으로 설치한다. API 키가 없을 때만 쓰는 대안이 아니라 쓰는 방식이 다른 선택지다. Claude Code에 로그인한 방식(Claude 구독이든 API 키든)으로 돌고, 웹 화면과 DB가 필요 없다.
+- **백엔드**: [cotcha-net](https://github.com/yeomyaloo/cotcha-net). 이 화면은 백엔드 API만 부른다.
+- **채팅 버전**: 같은 분석을 채팅에서 하려면 [cotcha-pocket](https://github.com/yeomyaloo/cotcha-pocket)를 Claude Code 플러그인으로 설치한다. API 키가 없을 때만 쓰는 대안이 아니라 쓰는 방식이 다른 선택지다. Claude Code에 로그인한 방식(Claude 구독이든 API 키든)으로 돌고, 웹 화면과 DB가 필요 없다.
 
 ```bash
-claude plugin marketplace add yeomyaloo/mcp-code-agent
-claude plugin install code-agent@yeomyaloo-code-agent
+claude plugin marketplace add yeomyaloo/cotcha-pocket
+claude plugin install cotcha@cotcha
 ```
 
 ## 스크린샷
 
-> 화면 테스트용 예시 데이터(`e2e/mockApi.ts`, be-code-agent의 테스트 픽스처 `vulnerable-app`을 분석했다고 가정)로 찍었다. `npm run screenshots`로 다시 만든다.
+> 화면 테스트용 예시 데이터(`e2e/mockApi.ts`, cotcha-net의 테스트 픽스처 `vulnerable-app`을 분석했다고 가정)로 찍었다. `npm run screenshots`로 다시 만든다.
 
 **프로젝트 상세**: 코드 그래프 통계, 진입점 → 위험 지점 경로(인터페이스를 거치는 호출 포함), 분석 시작, 분석 목록
 
@@ -233,14 +260,14 @@ claude plugin install code-agent@yeomyaloo-code-agent
 
 ### Docker로 실행 (백엔드·DB 포함)
 
-웹 화면을 써 보는 가장 쉬운 방법은 백엔드의 원클릭 설치다. [be-code-agent](https://github.com/yeomyaloo/be-code-agent#docker로-한-번에-실행-추천)에서 `docker compose up`을 하면 이 저장소를 GitHub에서 받아 빌드(이 `Dockerfile`)하고, PostgreSQL·백엔드와 함께 http://localhost:3000 에 띄운다. 컨테이너 안에서는 nginx가 빌드한 파일을 서빙하고 `/api`를 `BACKEND_URL`(기본 `http://backend:8080`, `nginx.conf.template` 참고)로 넘긴다.
+웹 화면을 써 보는 가장 쉬운 방법은 백엔드의 원클릭 설치다. [cotcha-net](https://github.com/yeomyaloo/cotcha-net#docker로-한-번에-실행-추천)에서 `docker compose up`을 하면 이 저장소를 GitHub에서 받아 빌드(이 `Dockerfile`)하고, PostgreSQL·백엔드와 함께 http://localhost:3000 에 띄운다. 컨테이너 안에서는 nginx가 빌드한 파일을 서빙하고 `/api`를 `BACKEND_URL`(기본 `http://backend:8080`, `nginx.conf.template` 참고)로 넘긴다.
 
 아래는 화면을 직접 개발할 때 쓰는 방법이다.
 
 ### 요구 사항
 
 - Node.js 20 이상
-- 실행 중인 [be-code-agent](https://github.com/yeomyaloo/be-code-agent) 백엔드 (기본 `http://localhost:8080`)
+- 실행 중인 [cotcha-net](https://github.com/yeomyaloo/cotcha-net) 백엔드 (기본 `http://localhost:8080`)
 
 ### 개발 서버
 

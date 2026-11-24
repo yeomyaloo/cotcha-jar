@@ -1,6 +1,6 @@
-# fe-code-agent
+# cotcha-jar
 
-be-code-agent(AI 코드 보안 분석 에이전트, `../code-agent`)의 웹 프론트. React 19 + TypeScript + Vite 6 + React Router 7 + TanStack Query 5 + Tailwind CSS 4.
+cotcha-net(AI 코드 보안 분석 에이전트, `../cotcha-net`)의 웹 프론트. React 19 + TypeScript + Vite 6 + React Router 7 + TanStack Query 5 + Tailwind CSS 4.
 
 ## 명령
 
@@ -13,7 +13,7 @@ npm run screenshots  # docs/screenshots/*.png 다시 만들기
 ```
 
 - Node 20.12에서도 돌아야 한다. Vite 7 이상, Node 20.19+를 요구하는 패키지로 올리지 않는다.
-- 백엔드가 떠 있어야 화면이 채워진다. 백엔드 실행은 `../code-agent`에서 `./gradlew bootRun`.
+- 백엔드가 떠 있어야 화면이 채워진다. 백엔드 실행은 `../cotcha-net`에서 `./gradlew bootRun`.
 
 ## 구조
 

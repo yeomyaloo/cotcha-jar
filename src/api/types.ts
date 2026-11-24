@@ -1,4 +1,4 @@
-// be-code-agent REST API 응답 타입. 백엔드의 record 와 이름을 맞춘다
+// cotcha-net REST API 응답 타입. 백엔드의 record 와 이름을 맞춘다
 
 export interface Project {
   id: number
