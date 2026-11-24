@@ -96,6 +96,29 @@ const CATEGORY_TONES: Record<string, Tone> = {
   IDOR: 'purple',
 }
 
+const LANGUAGES: Record<string, [string, Tone]> = {
+  java: ['Java', 'orange'],
+  python: ['Python', 'blue'],
+  javascript: ['JS/TS', 'yellow'],
+}
+
+/** 언어 하나 (java → Java). 모르는 값은 그대로 */
+export function LanguageBadge({ language }: { language: string }) {
+  const [label, tone] = LANGUAGES[language] ?? [language, 'gray' as Tone]
+  return <Badge tone={tone}>{label}</Badge>
+}
+
+/** 프로젝트 언어 (예: "java,python") 를 언어마다 배지로 */
+export function LanguageBadges({ language }: { language: string | null | undefined }) {
+  const languages = (language ?? '').split(',').map((l) => l.trim()).filter(Boolean)
+  if (languages.length === 0) return null
+  return (
+    <span className="inline-flex flex-wrap gap-1">
+      {languages.map((l) => <LanguageBadge key={l} language={l} />)}
+    </span>
+  )
+}
+
 export function CategoryBadge({ category, cwe }: { category: string; cwe?: string }) {
   return (
     <Badge tone={CATEGORY_TONES[category] ?? 'gray'}>

@@ -57,7 +57,32 @@ export const indexResult: IndexResult = {
   retainedNodes: 0,
   parseErrors: [],
   elapsedMs: 842,
+  languages: ['java', 'javascript'],
 }
+
+/** Python(FastAPI) 저장소 예시 */
+const pythonProject: Project = {
+  id: 4,
+  name: 'netinv',
+  repoPath: '/workspace/netinv',
+  language: 'python',
+  gitUrl: 'https://github.com/example/netinv.git',
+  gitBranch: 'main',
+  commitSha: '9a8b7c6d5e4f30211a2b3c4d5e6f708192a3b4c5',
+  syncedAt: '2026-10-10T02:00:10Z',
+  createdAt: '2026-10-10T02:00:00Z',
+}
+
+const pythonEntryPoints: EntryPointView[] = [
+  { id: 401, httpMethod: 'POST', path: '/api/scan/nmap', handler: 'app.routers.scan.run_nmap', filePath: 'app/routers/scan.py', line: 18, dependencies: ['app.deps.get_current_user'] },
+  { id: 402, httpMethod: 'GET', path: '/api/scan/fetch', handler: 'app.routers.scan.fetch', filePath: 'app/routers/scan.py', line: 28, dependencies: [] },
+]
+
+const pythonSinks: SinkView[] = [
+  { id: 411, category: 'COMMAND', cwe: 'CWE-78', api: 'asyncio.create_subprocess_exec', method: 'app.services.scanner.run_nmap', snippet: 'asyncio.create_subprocess_exec("nmap", "-sV", target)', filePath: 'app/services/scanner.py', line: 7, language: 'python' },
+  { id: 412, category: 'COMMAND', cwe: 'CWE-88', api: 'nmap.PortScanner.scan', method: 'app.services.scanner.scan_with_lib', snippet: 'nm.scan(hosts=hosts, arguments="-sV")', filePath: 'app/services/scanner.py', line: 14, language: 'python' },
+  { id: 413, category: 'SSRF', cwe: 'CWE-918', api: 'httpx.Client.get', method: 'app.routers.scan.fetch', snippet: 'client.get(url)', filePath: 'app/routers/scan.py', line: 31, language: 'python' },
+]
 
 const entryPoints: EntryPointView[] = [
   { id: 101, httpMethod: 'GET', path: '/api/users/search', handler: `${PKG}.web.UserController#search(String)`, filePath: 'src/main/java/com/example/vuln/web/UserController.java', line: 30 },
@@ -356,7 +381,12 @@ export async function mockApi(page: Page) {
     const path = url.pathname
     const method = route.request().method()
 
-    if (path === '/api/projects' && method === 'GET') return json(route, [project, otherProject])
+    if (path === '/api/projects' && method === 'GET') return json(route, [project, otherProject, pythonProject])
+    if (path === '/api/projects/4/code-graph/entry-points') return json(route, pythonEntryPoints)
+    if (path === '/api/projects/4/code-graph/sinks') return json(route, pythonSinks)
+    if (path === '/api/projects/4/code-graph/sink-paths') return json(route, [])
+    if (path === '/api/projects/4/analyses') return json(route, [])
+    if (path === '/api/projects/4/dependency-scans') return json(route, [])
     if (path === '/api/projects' && method === 'POST') {
       const body = route.request().postDataJSON()
       if (body.gitUrl?.startsWith('http://')) return json(route, { title: 'Bad Request', status: 400, detail: 'https 주소만 허용함' }, 400)

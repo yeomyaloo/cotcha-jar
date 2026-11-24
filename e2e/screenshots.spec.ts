@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 
 test('@screenshot 프로젝트 목록', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('listitem')).toHaveCount(2)
+  await expect(page.getByRole('listitem')).toHaveCount(3)
   await page.screenshot({ path: `${DIR}/projects.png` })
 })
 

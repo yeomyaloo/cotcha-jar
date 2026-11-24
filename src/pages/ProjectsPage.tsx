@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useCreateProject, useProjects } from '../api/hooks'
-import { Badge, Button, Card, Empty, ErrorBox, Field, inputClass, Loading, Tabs } from '../components/ui'
+import { Button, Card, Empty, ErrorBox, Field, inputClass, Loading, Tabs } from '../components/ui'
+import { LanguageBadges } from '../components/status'
 import { formatDateTime } from '../lib/format'
 
 type SourceKind = 'git' | 'local'
@@ -32,7 +33,7 @@ export default function ProjectsPage() {
                 className="-mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg px-2 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
               >
                 <span className="font-medium">{project.name}</span>
-                <Badge>{project.language}</Badge>
+                <LanguageBadges language={project.language} />
                 {project.gitUrl ? (
                   <span className="min-w-0 truncate text-sm text-zinc-500">
                     {project.gitUrl}
