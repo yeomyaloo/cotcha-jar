@@ -33,7 +33,7 @@ export interface IndexResult {
   retainedNodes: number
   parseErrors: string[]
   elapsedMs: number
-  /** 저장소에서 찾은 언어 (java, python, javascript) */
+  /** 저장소에서 찾은 언어 (java, python, kotlin, javascript) */
   languages?: string[]
 }
 
@@ -67,7 +67,7 @@ export interface SinkView {
   line: number | null
   /** 프론트엔드(JS/TS/Vue/HTML) 코드의 위험 지점. 진입점에서 이어지는 경로가 없다 */
   frontend?: boolean
-  /** 코드 언어 (java, python, javascript) */
+  /** 코드 언어 (java, python, kotlin, javascript) */
   language?: string | null
 }
 

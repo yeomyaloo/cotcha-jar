@@ -99,6 +99,7 @@ const CATEGORY_TONES: Record<string, Tone> = {
 const LANGUAGES: Record<string, [string, Tone]> = {
   java: ['Java', 'orange'],
   python: ['Python', 'blue'],
+  kotlin: ['Kotlin', 'purple'],
   javascript: ['JS/TS', 'yellow'],
 }
 
