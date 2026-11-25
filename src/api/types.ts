@@ -52,8 +52,12 @@ export interface EntryPointView {
   handler: string
   filePath: string | null
   line: number | null
-  /** FastAPI 진입점의 Depends(...) 의존 함수. Java 진입점은 null (정보 없음) */
+  /** FastAPI 진입점의 Depends(...) 의존 함수. 그 밖의 진입점은 null (정보 없음) */
   dependencies?: string[] | null
+  /** fastapi, flask, django (Java·Kotlin 은 null) */
+  framework?: string | null
+  /** Flask·Django 진입점의 인증 단서 (login_required, permission_classes, LoginRequiredMixin, before_request …). 그 밖은 null */
+  guards?: string[] | null
 }
 
 export interface SinkView {

@@ -166,6 +166,13 @@ function CodeGraphTabs({ projectId }: { projectId: number }) {
                     ) : (
                       <Badge tone="yellow">Depends 없음</Badge>
                     ))}
+                    {e.guards && (e.guards.length > 0 ? (
+                      <span className="text-xs text-zinc-500">인증 단서: {e.guards.join(', ')}</span>
+                    ) : (
+                      <span title="전역 설정(미들웨어, DEFAULT_PERMISSION_CLASSES)이 막을 수도 있어요">
+                        <Badge tone="yellow">인증 단서 없음</Badge>
+                      </span>
+                    ))}
                   </li>
                 ))}
               </ul>
