@@ -103,6 +103,7 @@ const LANGUAGES: Record<string, [string, Tone]> = {
   python: ['Python', 'blue'],
   kotlin: ['Kotlin', 'purple'],
   node: ['Node.js', 'green'],
+  go: ['Go', 'blue'],
   javascript: ['JS/TS', 'yellow'],
 }
 
