@@ -104,6 +104,7 @@ const LANGUAGES: Record<string, [string, Tone]> = {
   kotlin: ['Kotlin', 'purple'],
   node: ['Node.js', 'green'],
   go: ['Go', 'blue'],
+  php: ['PHP', 'purple'],
   javascript: ['JS/TS', 'yellow'],
 }
 

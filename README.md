@@ -73,7 +73,7 @@ claude plugin install cotcha@cotcha
 
 | Page | What it does | API used |
 |---|---|---|
-| **Projects** `/` | Register a repository by Git URL or server folder path, list registered repositories with language badges (Java, Kotlin, Python, Node.js, Go, JS/TS; detected when the code graph is built) | `POST /api/projects`, `GET /api/projects` |
+| **Projects** `/` | Register a repository by Git URL or server folder path, list registered repositories with language badges (Java, Kotlin, Python, Node.js, Go, PHP, JS/TS; detected when the code graph is built) | `POST /api/projects`, `GET /api/projects` |
 | **Project detail** `/projects/:id` | Pull the latest commit, build the code graph (file, method, entry point and sink stats), browse entry point → sink paths, entry points and sinks (frontend JS/TS and Python sinks are marked; FastAPI entry points show their `Depends(...)` dependencies or a "no Depends" warning; Flask and Django entry points show auth hints such as `login_required` and `permission_classes`, or a "no auth hints" warning), library vulnerabilities (build files + OSV, on demand; scan history and comparison with the previous scan), analyzed commit per analysis, start an analysis (planning mode: LLM Planner / mechanically per path; optionally wait for human approval of each plan), analysis list (status, finished tasks, finding counts, tokens) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
 | **Analysis** `/analyses/:id` | Plan approval while `WAITING_APPROVAL` (drop tasks, approve or reject) and the approval history, real-time progress (server events, SSE; falls back to 2-second polling), token usage, findings (Verifier verdict, evidence code, attack example), human review, the Planner's per-round plans and per-task conclusions, agent log timeline, HTML and SARIF reports | `GET /analyses/:id`, `/approve`, `/reject`, `/traces`, `/findings/:id/review`, `/verify`, `/report.*` |
 
@@ -252,7 +252,7 @@ claude plugin install cotcha@cotcha
 
 | 화면 | 하는 일 | 쓰는 API |
 |---|---|---|
-| **프로젝트** `/` | Git 주소나 서버 폴더 경로로 저장소 등록, 등록된 저장소 목록(언어 배지: Java, Kotlin, Python, Node.js, Go, JS/TS. 코드 그래프를 만들 때 판별) | `POST /api/projects`, `GET /api/projects` |
+| **프로젝트** `/` | Git 주소나 서버 폴더 경로로 저장소 등록, 등록된 저장소 목록(언어 배지: Java, Kotlin, Python, Node.js, Go, PHP, JS/TS. 코드 그래프를 만들 때 판별) | `POST /api/projects`, `GET /api/projects` |
 | **프로젝트 상세** `/projects/:id` | 최신 커밋 받기, 코드 그래프 만들기(파일·메서드·진입점·위험 지점 통계), 진입점 → 위험 지점 경로·진입점·위험 지점 조회(프론트엔드 JS/TS·Python 위험 지점 표시, FastAPI 진입점은 `Depends(...)` 의존 함수나 'Depends 없음' 경고, Flask·Django 진입점은 `login_required`·`permission_classes` 같은 인증 단서나 '인증 단서 없음' 경고), 라이브러리 취약점(빌드 파일 + OSV, 버튼을 누를 때만. 검사 기록과 지난 검사와의 비교), 분석마다 분석한 커밋, 분석 시작(계획 방식: LLM Planner / 경로마다 기계적으로, 계획마다 사람 승인받기 선택), 분석 목록(상태·할 일·발견 개수·토큰) | `/sync`, `/index`, `/code-graph/*`, `/dependency-scans`, `POST·GET /analyses` |
 | **분석** `/analyses/:id` | 승인 대기(`WAITING_APPROVAL`) 중이면 계획 승인(할 일 빼기·승인·거절)과 승인 기록, 실시간 진행 상황(서버 이벤트 SSE, 끊기면 2초 폴링), 토큰 사용량, 발견 목록(Verifier 판정·근거 코드·공격 예시), 사람 검토, Planner 회차별 계획과 할 일별 결론, 에이전트 기록 타임라인, HTML·SARIF 보고서 | `GET /analyses/:id`, `/approve`, `/reject`, `/traces`, `/findings/:id/review`, `/verify`, `/report.*` |
 
