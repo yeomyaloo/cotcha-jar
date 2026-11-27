@@ -82,6 +82,8 @@ const CATEGORY_TONES: Record<string, Tone> = {
   DESERIALIZATION: 'red',
   CODE_INJECTION: 'red',
   EXPRESSION_INJECTION: 'orange',
+  NOSQL_INJECTION: 'orange',
+  PROTOTYPE_POLLUTION: 'orange',
   PATH: 'orange',
   SSRF: 'orange',
   JNDI: 'orange',
@@ -100,6 +102,7 @@ const LANGUAGES: Record<string, [string, Tone]> = {
   java: ['Java', 'orange'],
   python: ['Python', 'blue'],
   kotlin: ['Kotlin', 'purple'],
+  node: ['Node.js', 'green'],
   javascript: ['JS/TS', 'yellow'],
 }
 
