@@ -106,6 +106,7 @@ const LANGUAGES: Record<string, [string, Tone]> = {
   go: ['Go', 'blue'],
   php: ['PHP', 'purple'],
   ruby: ['Ruby', 'red'],
+  csharp: ['C#', 'purple'],
   javascript: ['JS/TS', 'yellow'],
 }
 
